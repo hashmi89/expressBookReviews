@@ -78,4 +78,63 @@ public_users.get('/review/:isbn',function (req, res) {
     return res.send(JSON.stringify(reviews,null,4));
 });
 
+// TASK 10 - getting the list of books using Promise callbacks
+public_users.get('/books',function (req, res) {
+    const get_books = new Promise((resolve, reject) => {
+        resolve(res.send(JSON.stringify({books}, null, 4)));
+      });
+      get_books.then(() => console.log("Promise for Task 10 resolved"));
+  });
+
+// TASK 11 - getting the book details based on ISBN using Promise callbacks
+public_users.get('/books/:isbn',function (req, res) {
+  const get_books_isbn = new Promise((resolve, reject) => {
+    const isbn = req.params.isbn;
+    resolve(res.send(books[isbn]));
+  });
+    get_books_isbn.then(() => console.log("Promise for TASK 11 resolved"));
+ });
+
+ // TASK 12 - getting the book details based on ISBN using Promise callbacks
+ public_users.get('/books/author/:author',function (req, res) {
+    const get_books_author = new Promise((resolve, reject) =>{
+        const author = req.params.author;
+        const authorBooks = [];
+
+        for (let isbn in books){
+            if (books[isbn].author.toLowerCase() === author.toLowerCase()){
+                authorBooks.push(books[isbn]);
+            }
+        }
+
+        if (authorBooks.length > 0){
+            resolve(res.send(JSON.stringify(authorBooks)));
+        } else {
+            reject(res.status(404).json({message : `Unable to find any books with author: ${author}`}));
+        }
+        get_books_author.then(() => console.log("Promise for TASK 12 resolved"));
+    });
+});
+
+// TASK 13 - getting the book details based on the title using Promise callbacks
+public_users.get('/books/title/:title',function (req, res) {
+    const get_books_title = new Promise((resolve,reject) => {
+        const title = req.params.title;
+        const titleBooks = [];
+
+        for (let isbn in books){
+            if (books[isbn].title.toLowerCase() === title.toLowerCase()){
+                titleBooks.push(books[isbn]);
+            }
+        }
+
+        if (titleBooks.length > 0){
+            resolve(res.send(JSON.stringify(titleBooks)));
+        } else {
+            reject(res.status(404).json({message : `Unable to find any books with title: ${title}`}));
+        }
+        get_books_title.then(() => console.log("Promise for TASK 13 resolved"));
+    });
+});
+
 module.exports.general = public_users;
