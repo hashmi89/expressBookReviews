@@ -46,7 +46,7 @@ regd_users.post("/login", (req,res) => {
         // Generate JWT access token
         let accessToken = jwt.sign({
             data: password
-        }, 'access', { expiresIn: 60 });
+        }, 'access', { expiresIn: 60 * 60});
 
         // Store access token and username in session
         req.session.authorization = {
@@ -60,26 +60,28 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  /// Extract isbn parameter from request URL
+  const isbn = req.params.isbn;
+  let filtered_book = books[isbn];
+  if (filtered_book) {
+      let review = req.query.review;
+      let reviewer = req.session.authorization['username'];
+      if(review) {
+          filtered_book['reviews'][reviewer] = review;
+          books[isbn] = filtered_book;
+      }
+      res.send(`The review for the book with ISBN  ${isbn} has been added/updated.`);
+  }
+  else{
+      res.send("Unable to find this ISBN!");
+  }
+});
+
+// Delete a book review by user/reviewer
+regd_users.delete("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
-    let book = books[isbn];  // Retrieve book object associated with isbn
-
-    if (book) {  // Check if book exists
-        let review = req.body.review;
-        let firstName = req.body.firstName;
-        let lastName = req.body.lastName;
-
-        // Update DOB if provided in request body
-        if (review) {
-            book
-        }
-
-        friends[email] = friend;  // Update friend details in 'friends' object
-        res.send(`Friend with the email ${email} updated.`);
-    } else {
-        // Respond if friend with specified email is not found
-        res.send("Unable to find friend!");
-    }
+    const reviewer = req.session.authorization["username"];
+    delete books[isbn]["reviews"][reviewer];
+    res.send(`The review for the book with ISBN ${isbn} has been deleted`);
 });
 
 module.exports.authenticated = regd_users;
